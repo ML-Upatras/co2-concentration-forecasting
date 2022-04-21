@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas as pd
 from darts import TimeSeries
 from darts.dataprocessing.transformers import Scaler
 from darts.models import NaiveSeasonal, TFTModel, BlockRNNModel, NBEATSModel, RNNModel, TCNModel, TransformerModel, \
@@ -11,10 +12,10 @@ from src.utils import evaluate_model
 from src.dataset import create_future_covariates, load_co2_data
 from src.visualizations import plot_hf
 
-FIGURES_PATH = Path("figures")
+FIGURES_PATH = Path("figures") / f"retrain_{cfg.RETRAIN}" / f"forecasting_horizon_{cfg.FORECAST_HORIZON}"
 FIGURES_PATH.mkdir(exist_ok=True, parents=True)
 
-RESULTS_PATH = Path("results")
+RESULTS_PATH = Path("results") / f"retrain_{cfg.RETRAIN}"
 RESULTS_PATH.mkdir(exist_ok=True, parents=True)
 
 if __name__ == '__main__':
@@ -148,8 +149,17 @@ if __name__ == '__main__':
             save_path=RESULTS_PATH
         )
 
-    # plot all the forecasts from historical forecasts dict
-    plt.figure(figsize=(34, 8))
-    for model_name, hf in historical_forecasts.items():
-        hf.plot(label=model_name)
-        plt.savefig(FIGURES_PATH / f"{cfg.FORECAST_HORIZON}_all.png")
+    # isolate real
+    idx = historical_forecasts["naive"].start_time()
+    real = target_ts[idx:]
+    real = scaler.inverse_transform(real)
+
+    # transform the forecasts
+    for model_name, model_hf in historical_forecasts.items():
+        model_hf = scaler.inverse_transform(model_hf)
+        historical_forecasts[model_name] = model_hf.pd_series().tolist()
+    historical_forecasts["real"] = real.pd_series().tolist()
+
+    historical_forecasts_df = pd.DataFrame(historical_forecasts)
+    historical_forecasts_df.to_csv(RESULTS_PATH / f"hf_{cfg.FORECAST_HORIZON}.csv", index=False)
+
