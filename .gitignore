@@ -133,3 +133,8 @@ dmypy.json
 .idea
 data
 figures
+90-10/figures
+90-10/.darts
+80-20/figures
+80-20/.darts
+results
