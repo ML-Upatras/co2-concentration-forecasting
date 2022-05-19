@@ -1,6 +1,5 @@
-# co2-forecasting-benchmark
-
-The code for the paper: "Forecasting CO2 emissions from a single-sensor."
+# co2-concentration-forecasting
+The code for the paper: "CO2 Concentration Forecasting From Multivariate Time Series IoT Data Using a Hybrid ARIMA-TFT Model."
 
 #### Requirements
 
