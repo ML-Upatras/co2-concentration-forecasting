@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from darts import TimeSeries
-from darts.metrics import rmse, mae
+from darts.metrics import rmse, mae, mape
 
 from stac import friedman_test
 
@@ -24,15 +24,18 @@ def calc_avg(split, fh):
     # calculate metrics
     mean_absolute_error_no_retrain = mae(real_no_retrain, avg_no_retrain)
     root_mean_squared_error_no_retrain = rmse(real_no_retrain, avg_no_retrain)
+    mape_no_retrain = mape(real_no_retrain, avg_no_retrain)
 
     mean_absolute_error_retrain = mae(real_retrain, avg_retrain)
     root_mean_squared_error_retrain = rmse(real_retrain, avg_retrain)
+    mape_retrain = mape(real_retrain, avg_retrain)
 
     # add to dataframe
     retrain_row = {
         "model_name": "avg",
         "mean_absolute_error": mean_absolute_error_retrain,
         "root_mean_squared_error": root_mean_squared_error_retrain,
+        "mape": mape_retrain,
         "fh": fh,
         "split": split,
         "retrain": "yes"
@@ -43,6 +46,7 @@ def calc_avg(split, fh):
         "model_name": "avg",
         "mean_absolute_error": mean_absolute_error_no_retrain,
         "root_mean_squared_error": root_mean_squared_error_no_retrain,
+        "mape": mape_no_retrain,
         "fh": fh,
         "split": split,
         "retrain": "no"
@@ -114,7 +118,7 @@ for fh, split in [(1, "80-20"), (24, "80-20"), (168, "80-20"), (1, "90-10"), (24
 print("Tables exported!")
 
 # prepare friedman dataset
-for metric in ["mean_absolute_error", "root_mean_squared_error"]:
+for metric in ["mean_absolute_error", "root_mean_squared_error", "mape"]:
     friedman_df = pd.DataFrame(
         columns=['avg_retrain_no',
                  'tft_retrain_no',

@@ -1,5 +1,5 @@
 import pandas as pd
-from darts.metrics import mse, mae, rmse, r2_score
+from darts.metrics import mse, mae, rmse, r2_score, mape
 
 
 def evaluate_model(ts, hf_scaled, scaler, model_name, fh, save_path):
@@ -14,12 +14,14 @@ def evaluate_model(ts, hf_scaled, scaler, model_name, fh, save_path):
     mean_absolute_error = mae(ts, hf)
     root_mean_squared_error = rmse(ts, hf)
     r2_score_ = r2_score(ts, hf)
+    mean_absolute_percentage_error = mape(ts, hf)
 
     # round to 4 decimal places
     mean_absolute_error = round(mean_absolute_error, 4)
     mean_squared_error = round(mean_squared_error, 4)
     root_mean_squared_error = round(root_mean_squared_error, 4)
     r2_score_ = round(r2_score_, 4)
+    mean_absolute_percentage_error = round(mean_absolute_percentage_error, 4)
 
     # if csv exists open it
     if RESULTS_FILE.exists():
@@ -29,6 +31,7 @@ def evaluate_model(ts, hf_scaled, scaler, model_name, fh, save_path):
                                    "mean_squared_error",
                                    "mean_absolute_error",
                                    "root_mean_squared_error",
+                                   "mape"
                                    "r2_score_"])
 
     # append new row
@@ -36,6 +39,7 @@ def evaluate_model(ts, hf_scaled, scaler, model_name, fh, save_path):
                     "mean_squared_error": mean_squared_error,
                     "mean_absolute_error": mean_absolute_error,
                     "root_mean_squared_error": root_mean_squared_error,
+                    "mape": mean_absolute_percentage_error,
                     "r2_score_": r2_score_}, ignore_index=True)
     df = df.drop_duplicates(subset="model_name", keep="last")
 
